@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>中秋節泰語生存力測驗｜兔子烤肉篇</title>
+  <meta name="description" content="5 題測出你的泰語中秋生存力，還有泰國神級烤肉廣告彩蛋！" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 星空（JS 產生星星） -->
+  <div class="sky" id="sky" aria-hidden="true"></div>
+
+  <a class="store-link" id="store-link" href="https://thaiskr.com/store/products" target="_blank" rel="noopener">📚 泰時刻的書櫃子</a>
+
+  <main class="app">
+
+    <!-- ========== 頁面一：首頁 ========== -->
+    <section class="screen is-active" id="screen-landing" aria-labelledby="landing-title">
+      <header class="landing-head">
+        <p class="brand" data-brand></p>
+        <h1 id="landing-title">兔子烤肉中，<br />你的泰語熟了沒？</h1>
+        <p class="lead">點擊畫面中的物品，暖身一下！聽聽看發音 🔊</p>
+      </header>
+
+      <div class="scene-wrap" id="scene-wrap">
+        <div class="scene" id="scene"></div>
+        <div class="bubble" id="bubble" role="status" aria-live="polite" hidden>
+          <span class="bubble-thai" id="bubble-thai"></span>
+          <span class="bubble-roman" id="bubble-roman"></span>
+          <span class="bubble-zh" id="bubble-zh"></span>
+        </div>
+      </div>
+
+      <div class="warmup">
+        <p class="warmup-count"><span id="found-count">0</span> / 5 個已暖身</p>
+        <div class="chips" id="chips"></div>
+        <p class="tts-note" id="tts-note" hidden>這台裝置找不到泰語語音，可以改用 Chrome 或在系統設定下載泰語語音。</p>
+      </div>
+
+      <div class="cta-bar">
+        <button class="btn btn-primary btn-block" id="btn-start" type="button">暖身完畢！測測我的泰語中秋生存力</button>
+      </div>
+    </section>
+
+    <!-- ========== 頁面二：測驗 ========== -->
+    <section class="screen" id="screen-quiz" aria-labelledby="quiz-prompt">
+      <div class="quiz-top">
+        <p class="quiz-count" id="quiz-count">第 1 / 5 題</p>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" id="progress">
+          <div class="progress-fill" id="progress-fill"></div>
+          <span class="progress-rabbit" id="progress-rabbit" aria-hidden="true">🐰</span>
+        </div>
+      </div>
+
+      <div class="quiz-card">
+        <button class="btn-listen" id="btn-listen" type="button" hidden>🔊 播放題目語音</button>
+        <h2 class="quiz-prompt" id="quiz-prompt"></h2>
+        <div class="options" id="options"></div>
+
+        <!-- 作答後出現：對錯 + 解析（直接展開）+ 下一題 -->
+        <div class="feedback" id="feedback" hidden>
+          <p class="verdict" id="verdict" role="status" aria-live="polite"></p>
+          <div class="explain" id="explain"></div>
+          <button class="btn btn-primary btn-block" id="btn-next" type="button">下一題</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 頁面三：結果 ========== -->
+    <section class="screen" id="screen-result">
+
+      <!-- 區塊 B-1：分享圖（html2canvas 只截這裡） -->
+      <div class="share-stage">
+        <div class="share-card" id="share-card">
+          <p class="sc-brand" data-brand></p>
+          <img class="sc-art" id="sc-art" alt="兩隻兔子在月光下烤肉" />
+          <p class="sc-score">我答對了 <span id="sc-score">0</span><small id="sc-total">/5</small> 題！</p>
+          <p class="sc-title" id="sc-title"></p>
+          <p class="sc-foot">中秋泰語生存力測驗</p>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" id="btn-share" type="button">📸 長按儲存圖片或分享至 IG</button>
+
+      <!-- 區塊 B-2：導購（不截圖） -->
+      <article class="panel shop" id="shop">
+        <p class="shop-copy" id="shop-copy"></p>
+        <ul class="products" id="products"></ul>
+      </article>
+
+      <button class="btn btn-text" id="btn-restart" type="button">↺ 再測一次</button>
+
+      <!-- 區塊 A：測後彩蛋 -->
+      <article class="panel egg">
+        <h2>🌕 測後彩蛋：台灣烤肉 vs 泰國神級廣告！</h2>
+        <p>你知道嗎？台灣人中秋節一定要烤肉，其實是源自於 80 年代「一家烤肉萬家香」的醬油廣告帶起的風潮！說到超狂廣告，泰國的搞笑廣告可是世界第一。既然今天考了泰文，馬上來看看泰國知名烤肉品牌 Bar-B-Q Plaza (<span lang="th">บาร์บีคิวพลาซ่า</span>) 怎麼拍出讓人笑到噴飯的烤肉廣告吧！</p>
+        <div class="video" id="video"></div>
+      </article>
+
+    </section>
+  </main>
+
+  <!-- 分享圖彈窗 -->
+  <div class="modal" id="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">你的中秋泰語成績單</h2>
+      <p class="modal-hint">手機請長按圖片 ➜ 儲存或分享到 IG 限動</p>
+      <div class="modal-img-wrap"><img id="modal-img" alt="測驗結果分享圖" /></div>
+      <div class="modal-actions">
+        <button class="btn btn-gold" id="btn-download" type="button">下載圖片</button>
+        <button class="btn btn-primary" id="btn-native-share" type="button" hidden>分享</button>
+      </div>
+      <button class="btn btn-text" id="btn-close" type="button">關閉，看推薦書單</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

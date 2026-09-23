@@ -11,7 +11,7 @@ const CONFIG = {
   items: {
     moon:     { thai: 'พระจันทร์',          roman: 'prá-jan',             zh: '月亮' },
     rabbit:   { thai: 'กระต่าย',            roman: 'grà-dtàai',           zh: '兔子' },
-    skewer:   { thai: 'หมูปิ้ง',             roman: 'mŏo bpîng',           zh: '豬肉串' },
+    skewer:   { thai: 'กินเนื้อย่าง',        roman: 'gin néua yâang',      zh: '吃烤肉' },
     mooncake: { thai: 'ขนมไหว้พระจันทร์',    roman: 'kà-nŏm wâai prá-jan', zh: '月餅' },
     pomelo:   { thai: 'ส้มโอ',              roman: 'sôm-oh',              zh: '柚子' },
   },
@@ -21,10 +21,10 @@ const CONFIG = {
      optionFeedback（選填）：選到特定錯誤選項時，解析區額外顯示的回饋 */
   questions: [
     {
-      prompt: '中秋烤肉如果懶得自己生火，直接去夜市買泰國國民美食「烤豬肉串」最快！請問你剛剛在首頁點擊的「烤豬肉串」，泰文是哪個？',
-      options: ['หมูกระทะ (mŏo grà-tá)', 'หมูปิ้ง (mŏo bpîng)', 'ไก่ย่าง (gài yâang)'],
+      prompt: '泰文裡有一堆 กระ (grà) 開頭的單字，長得超像但意思差很多！請問首頁那兩隻可愛的「兔子」，泰文是哪個？',
+      options: ['กระเป๋า (grà-bpǎo)', 'กระต่าย (grà-dtàai)', 'กระโปรง (grà-bprohng)'],
       answer: 1,
-      explanation: '正確答案是 (B)！豬肉是 หมู，烤是 ปิ้ง。(A) หมูกระทะ 是「泰式銅盤烤肉」；(C) ไก่ย่าง 是「烤雞」。去夜市別點錯囉！',
+      explanation: '正確答案是 (B)！兔子是 กระต่าย。泰文有很多 กระ 開頭的字，長得很像但差很多：(A) กระเป๋า 是包包，(C) กระโปรง 是裙子。',
     },
     {
       prompt: '泰國也有月餅，而且有榴槤口味！如果你不敢吃榴槤，想吃清爽的「柚子」，該選哪一個？',
@@ -49,22 +49,21 @@ const CONFIG = {
       explanation: '正確答案是 (A)！ขนม＝點心／ไหว้＝拜／พระจันทร์＝月亮。三個字組合「拜月亮的點心」，就是月餅啦！',
     },
     {
-      prompt: '中秋夜跟泰國曖昧對象一起吃烤豬肉串 (หมูปิ้ง / mŏo bpîng)。你想展現超強撩人技巧，用這個單字玩「泰式土味情話」，請問該怎麼說最撩？',
+      prompt: '中秋夜跟泰國曖昧對象一起吃烤肉 (กินเนื้อย่าง / gin néua yâang)，你想玩一句「泰式土味情話」，請問該怎麼說最撩？',
       options: [
-        'ชอบหมูปิ้งไหม (chôp mŏo bpîng mǎi)',
-        'กินหมูปิ้งแล้วปิ๊งเธอ (gin mŏo bpîng láew bpíng ter)',
-        'หมูปิ้งอร่อยกว่าเธอ (mŏo bpîng à-ròi gwàa ter)',
+        'เนื้อไหม้แล้ว (néua mâi láew)',
+        'กินเนื้อย่างกับฉัน แล้วเป็นเนื้อคู่ฉันได้ไหม (gin néua yâang gàp chǎn, láew bpen néua-kôo chǎn dâai mǎi)',
+        'เธอชอบกินเนื้อย่างไหม (ter chôp gin néua yâang mǎi)',
       ],
       answer: 1,
-      explanation: '正確解答是 (B)！ปิ๊ง (bpíng) 有「心動」的意思。吃 หมูปิ้ง (烤豬肉串) 然後 ปิ๊ง (心動) เธอ (你)，完美雙關語！',
+      explanation: '正確解答是 (B)！「跟我吃烤肉，然後當我的靈魂伴侶好嗎？」เนื้อ 是肉，而 เนื้อคู่ (néua-kôo) 是「命中註定的靈魂伴侶」。同一個 เนื้อ，從烤肉一路接到告白，是泰國人最愛的那種諧音梗 🥩',
       optionFeedback: {
-        0: '這句太保守啦！若對方答喜歡，可順勢反撩：「แต่ฉันชอบเธอนะ (但我喜歡你喔)」，霸氣得分！',
-        2: '憑實力單身！快補上一句：「แต่เธอหวานกว่าหมูปิ้ง (但妳比烤豬肉串還要甜)」，瞬間救回氣氛！',
+        0: '「肉烤焦了」只顧著看肉，完全沒撩到人啦！快接一句：「ไหม้เพราะมองเธอ (mâi prór morng ter，是看著妳才烤焦的)」，瞬間反轉。',
+        2: '「妳喜歡吃烤肉嗎」問的是食物，不是人啦！快補上一句：「แต่ฉันชอบเธอมากกว่า (dtàe chǎn chôp ter mâak gwàa，但我更喜歡妳)」，同一個 ชอบ 直接轉向。',
       },
     },
   ],
 
-  /* 結果分級：依答對題數 */
   /* 賣場連結（頁面右上角） */
   storeUrl: 'https://thaiskr.com/store/products',
 
@@ -349,7 +348,7 @@ function sceneSVG(interactive, variant = 'landing') {
   const mood = { landing: 'normal', burnt: 'cry', half: 'unsure' }[variant] || 'normal';
   const meat = { landing: 'cooked', burnt: 'burnt', half: 'half' }[variant] || 'cooked';
   const label = {
-    landing: '月光下，兩隻兔子在烤肉架前烤豬肉串，桌上有月餅和柚子',
+    landing: '月光下，兩隻兔子在烤肉架前烤肉，桌上有月餅和柚子',
     burnt: '肉串全烤焦了，兩隻兔子傷心落淚',
     half: '肉串烤到半熟，柚子只剝了一半，兔子冒冷汗',
   }[variant];
@@ -367,7 +366,7 @@ function sceneSVG(interactive, variant = 'landing') {
 
   return `${open(label)}
     ${backdropSVG(!interactive, hs('moon', '月亮，點擊聽發音'))}
-    ${grillSVG(meat, hs('skewer', '豬肉串，點擊聽發音'))}
+    ${grillSVG(meat, hs('skewer', '吃烤肉，點擊聽發音'))}
     <g ${hs('rabbit', '兔子，點擊聽發音')}>
       ${rabbitSVG(76, 318, false, fanArm, mood)}
       ${rabbitSVG(286, 318, true, skewerArm, mood)}
@@ -855,6 +854,7 @@ async function makeShareImage() {
   const label = btn.textContent;
   btn.textContent = '圖片製作中…';
   lastError = '';
+  $('#share-note').textContent = '';
   try {
     if (document.fonts?.ready) {
       try {
@@ -954,17 +954,13 @@ async function nativeShare() {
   }
 }
 
-/* 小字診斷資訊：手機存圖失敗時，可以把這行內容回報 */
+/* 只有出錯時才在畫面上留訊息，正常使用看不到 */
 function updateDiag() {
   const note = $('#share-note');
-  if (note) {
-    const kb = shareBlob ? Math.round(shareBlob.size / 1024) : 0;
-    note.textContent = `診斷：img ${kb}KB · share ${navigator.share ? 'Y' : 'N'} · files ${canShareFile() ? 'Y' : 'N'} · dl ${supportsDownloadAttr ? 'Y' : 'N'} · ua ${isIOS ? 'iOS' : isMobile ? 'mobile' : 'pc'}${lastError ? ' · ' + lastError : ''}`;
-  }
-  const el = $('#diag');
-  if (!el) return;
+  if (!note) return;
+  if (!lastError) { note.textContent = ''; return; }
   const kb = shareBlob ? Math.round(shareBlob.size / 1024) : 0;
-  el.textContent = `img ${kb}KB · share ${navigator.share ? 'Y' : 'N'} · files ${canShareFile() ? 'Y' : 'N'} · dl ${supportsDownloadAttr ? 'Y' : 'N'}${lastError ? ' · ' + lastError : ''}`;
+  note.textContent = `診斷：img ${kb}KB · share ${navigator.share ? 'Y' : 'N'} · files ${canShareFile() ? 'Y' : 'N'} · dl ${supportsDownloadAttr ? 'Y' : 'N'} · ua ${isIOS ? 'iOS' : isMobile ? 'mobile' : 'pc'} · ${lastError}`;
 }
 
 /* 關閉彈窗後，帶使用者看到購書區 */

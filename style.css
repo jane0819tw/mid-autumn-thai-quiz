@@ -231,3 +231,5 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.75rem,7.5vw,2.
 
 /* 診斷小字（手機存圖失敗時回報用，可整段刪除） */
 .diag{margin:10px 0 0;font-size:.7rem;color:rgba(185,189,223,.6);word-break:break-all}
+
+.share-note{margin:10px 0 0;font-size:.78rem;line-height:1.6;color:#ffc0a0;word-break:break-all}

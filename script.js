@@ -709,15 +709,37 @@ const SHARE_W = 1080, SHARE_H = 1920;          // IG 限動尺寸
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('圖片載入失敗'));
+    img.decoding = 'sync';
+    img.onload = async () => {
+      if (img.decode) { try { await img.decode(); } catch (e) {} }
+      resolve(img);
+    };
+    img.onerror = () => reject(new Error('load-fail'));
     img.src = src;
   });
 }
 
+/* SVG 轉成圖片：先試 data URL，失敗再試 blob URL（iOS Safari 兩種行為不一樣） */
+async function loadSvgImage(svg) {
+  try {
+    return await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  } catch (e) {
+    lastError = 'svg-data-fail';
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    try {
+      const img = await loadImage(url);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      return img;
+    } catch (e2) {
+      URL.revokeObjectURL(url);
+      throw new Error('svg-load-fail');
+    }
+  }
+}
+
 /* 插圖轉 PNG（網頁上的預覽也用這張） */
 function svgToPng(svg, width) {
-  return loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)).then(img => {
+  return loadSvgImage(svg).then(img => {
     const h = Math.round(width * 400 / 360);   // 插圖 viewBox 360×400
     const c = document.createElement('canvas');
     c.width = width; c.height = h;
@@ -782,10 +804,15 @@ async function buildShareCanvas(tierKey) {
 
   // 插圖
   try {
-    const art = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(sceneSVG(false, tierKey)));
+    const art = await loadSvgImage(sceneSVG(false, tierKey));
     const w = SHARE_W * 1.02;
     const h = w * 400 / 360;
     ctx.drawImage(art, (SHARE_W - w) / 2, 180, w, h);
+    // 檢查兔子那一區有沒有真的畫出來（Safari 有時會畫成空白）
+    try {
+      const px = ctx.getImageData(SHARE_W / 2, 1150, 1, 1).data;
+      if (px[3] === 0) lastError = 'art-blank';
+    } catch (e) { lastError = 'tainted'; }
   } catch (e) { lastError = 'art:' + e.message; }
 
   // 分數
@@ -845,7 +872,12 @@ async function makeShareImage() {
     const tierKey = tierOf(state.score, CONFIG.questions.length);
     const canvas = await buildShareCanvas(tierKey);
 
-    shareDataURL = canvas.toDataURL('image/png');
+    try {
+      shareDataURL = canvas.toDataURL('image/png');
+    } catch (e) {
+      throw new Error('export-blocked');   // canvas 被瀏覽器鎖住（tainted）
+    }
+    if (!shareDataURL || shareDataURL.length < 1000) throw new Error('export-empty');
     shareBlob = await new Promise(res => {
       if (canvas.toBlob) canvas.toBlob(res, 'image/png');
       else res(dataURLtoBlob(shareDataURL));
@@ -866,6 +898,7 @@ async function makeShareImage() {
     lastError = err && err.message ? err.message : String(err);
     updateDiag();
     toast('圖片製作失敗，可以直接截圖分享喔');
+    $('#share-note').textContent = '圖片製作失敗（' + lastError + '）。可以直接截圖上方的成績卡分享，或把括號裡的訊息回報給我們。';
   } finally {
     btn.disabled = false;
     btn.textContent = label;
@@ -923,6 +956,11 @@ async function nativeShare() {
 
 /* 小字診斷資訊：手機存圖失敗時，可以把這行內容回報 */
 function updateDiag() {
+  const note = $('#share-note');
+  if (note) {
+    const kb = shareBlob ? Math.round(shareBlob.size / 1024) : 0;
+    note.textContent = `診斷：img ${kb}KB · share ${navigator.share ? 'Y' : 'N'} · files ${canShareFile() ? 'Y' : 'N'} · dl ${supportsDownloadAttr ? 'Y' : 'N'} · ua ${isIOS ? 'iOS' : isMobile ? 'mobile' : 'pc'}${lastError ? ' · ' + lastError : ''}`;
+  }
   const el = $('#diag');
   if (!el) return;
   const kb = shareBlob ? Math.round(shareBlob.size / 1024) : 0;

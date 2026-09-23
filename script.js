@@ -6,13 +6,14 @@ const CONFIG = {
   brandName: '泰時刻',                 // 出現在首頁與分享圖上方
   youtubeId: 'N9x-wOhMJO8',                       // Bar-B-Q Plaza 廣告的 YouTube 影片 ID（網址 v= 後面那串）
 
-  /* 首頁暖身物品 */
+  /* 首頁暖身物品
+     羅馬拼音採 thai2english.com 的標注方式（ป=bp、ต=dt、โ-=oh、แ-=ae、เธอ=ter） */
   items: {
     moon:     { thai: 'พระจันทร์',          roman: 'prá-jan',             zh: '月亮' },
     rabbit:   { thai: 'กระต่าย',            roman: 'grà-dtàai',           zh: '兔子' },
-    skewer:   { thai: 'หมูปิ้ง',             roman: 'mǔu-pîng',            zh: '豬肉串' },
-    mooncake: { thai: 'ขนมไหว้พระจันทร์',    roman: 'kà-nǒm wâai prá-jan', zh: '月餅' },
-    pomelo:   { thai: 'ส้มโอ',              roman: 'sôm-oo',              zh: '柚子' },
+    skewer:   { thai: 'หมูปิ้ง',             roman: 'mŏo bpîng',           zh: '豬肉串' },
+    mooncake: { thai: 'ขนมไหว้พระจันทร์',    roman: 'kà-nŏm wâai prá-jan', zh: '月餅' },
+    pomelo:   { thai: 'ส้มโอ',              roman: 'sôm-oh',              zh: '柚子' },
   },
 
   /* 題目：answer 為正確選項的索引（A=0、B=1、C=2）
@@ -21,33 +22,41 @@ const CONFIG = {
   questions: [
     {
       prompt: '中秋烤肉如果懶得自己生火，直接去夜市買泰國國民美食「烤豬肉串」最快！請問你剛剛在首頁點擊的「烤豬肉串」，泰文是哪個？',
-      options: ['หมูกระทะ (mǔu grà-tá)', 'หมูปิ้ง (mǔu-pîng)', 'ไก่ย่าง (gài yâang)'],
+      options: ['หมูกระทะ (mŏo grà-tá)', 'หมูปิ้ง (mŏo bpîng)', 'ไก่ย่าง (gài yâang)'],
       answer: 1,
       explanation: '正確答案是 (B)！豬肉是 หมู，烤是 ปิ้ง。(A) หมูกระทะ 是「泰式銅盤烤肉」；(C) ไก่ย่าง 是「烤雞」。去夜市別點錯囉！',
     },
     {
-      prompt: '泰國也有月餅，而且最受歡迎的是「榴槤蛋黃」口味！如果你不敢吃榴槤，想吃清爽的「柚子」，該選哪一個？',
-      options: ['ส้มโอ (sôm-oo)', 'มะม่วง (má-mûang)', 'แตงโม (dtɛɛng-moo)'],
+      prompt: '泰國也有月餅，而且有榴槤口味！如果你不敢吃榴槤，想吃清爽的「柚子」，該選哪一個？',
+      options: ['ส้มโอ (sôm-oh)', 'มะม่วง (má-mûang)', 'แตงโม (dtaeng-moh)'],
       answer: 0,
       explanation: '正確答案是 (A)！柚子是 ส้มโอ。前面的 ส้ม 單獨拿出來是「橘子」！(B) มะม่วง 是芒果，(C) แตงโม 是西瓜。',
     },
     {
       prompt: '吃飽喝足想感嘆「今晚的月亮好圓啊！」，泰文正確的語法順序應該怎麼排？',
-      options: ['很 (mâak) + 圓 (glom) + 月亮 (prá-jan)', '圓 (glom) + 月亮 (prá-jan) + 很 (mâak)', '月亮 (prá-jan) + 圓 (glom) + 很 (mâak)'],
+      options: [
+        '很 มาก (mâak) ＋ 圓 กลม (glom) ＋ 月亮 พระจันทร์ (prá-jan)',
+        '圓 กลม (glom) ＋ 月亮 พระจันทร์ (prá-jan) ＋ 很 มาก (mâak)',
+        '月亮 พระจันทร์ (prá-jan) ＋ 圓 กลม (glom) ＋ 很 มาก (mâak)',
+      ],
       answer: 2,
       explanation: '正確答案是 (C)！泰文語法形容詞和副詞都要放在名詞後面。所以「月亮很圓」的邏輯是「月亮 (พระจันทร์) ➔ 圓 (กลม) ➔ 很 (มาก)」。',
     },
     {
-      prompt: '泰文的「月餅」叫做 ขนมไหว้พระจันทร์ (kà-nǒm wâai prá-jan)，這個字是由三個單字拼起來的，直譯超級直白！請問它字面上的意思是？',
+      prompt: '泰文的「月餅」叫做 ขนมไหว้พระจันทร์ (kà-nŏm wâai prá-jan)，這個字是由三個單字拼起來的，直譯超級直白！請問它字面上的意思是？',
       options: ['拜月亮的點心', '圓圓甜甜的餅', '兔子搗的麻糬'],
       answer: 0,
       explanation: '正確答案是 (A)！ขนม＝點心／ไหว้＝拜／พระจันทร์＝月亮。三個字組合「拜月亮的點心」，就是月餅啦！',
     },
     {
-      prompt: '中秋夜跟泰國曖昧對象一起吃烤豬肉串 (หมูปิ้ง / mǔu-pîng)。你想展現超強撩人技巧，用這個單字玩「泰式土味情話」，請問該怎麼說最撩？',
-      options: ['ชอบหมูปิ้งไหม (chɔ̂ɔp mǔu-pîng mǎi)', 'กินหมูปิ้งแล้วปิ๊งเธอ (gin mǔu-pîng lɛ́ɛo pîng təə)', 'หมูปิ้งอร่อยกว่าเธอ (mǔu-pîng à-ròi gwàa təə)'],
+      prompt: '中秋夜跟泰國曖昧對象一起吃烤豬肉串 (หมูปิ้ง / mŏo bpîng)。你想展現超強撩人技巧，用這個單字玩「泰式土味情話」，請問該怎麼說最撩？',
+      options: [
+        'ชอบหมูปิ้งไหม (chôp mŏo bpîng mǎi)',
+        'กินหมูปิ้งแล้วปิ๊งเธอ (gin mŏo bpîng láew bpíng ter)',
+        'หมูปิ้งอร่อยกว่าเธอ (mŏo bpîng à-ròi gwàa ter)',
+      ],
       answer: 1,
-      explanation: '正確解答是 (B)！ปิ๊ง (pîng) 有「心動」的意思。吃 หมูปิ้ง (烤豬肉串) 然後 ปิ๊ง (心動) เธอ (你)，完美雙關語！',
+      explanation: '正確解答是 (B)！ปิ๊ง (bpíng) 有「心動」的意思。吃 หมูปิ้ง (烤豬肉串) 然後 ปิ๊ง (心動) เธอ (你)，完美雙關語！',
       optionFeedback: {
         0: '這句太保守啦！若對方答喜歡，可順勢反撩：「แต่ฉันชอบเธอนะ (但我喜歡你喔)」，霸氣得分！',
         2: '憑實力單身！快補上一句：「แต่เธอหวานกว่าหมูปิ้ง (但妳比烤豬肉串還要甜)」，瞬間救回氣氛！',
@@ -66,9 +75,12 @@ const CONFIG = {
        找不到圖片或留空時，會自動顯示預留的圖片框 */
   fixedProduct: {
     name: '數位版【泰劇常見詞｜泰文子音母音卡】',
-    url: 'https://tally.so/r/obo7AO',
+    url: 'https://thaiskr.com/store/products/AE_0002',
     image: 'images/AE_0002.jpg',
     desc: '42 張子音卡＋25 張母音卡，每張搭配 3 句泰劇情境例句與母語者錄音。拼音、斷句、語速調整一次到位，不管哪個程度，都能回頭把字母基礎打穩。',
+    coupon: 'AUTUMN100',          // 只有這個固定商品有折扣碼，留空則不顯示
+    couponLabel: '🌕 中秋節優惠',
+    couponNote: '9/30 前有效',
   },
 
   /* 結果分級：依答對題數；products 會隨機抽一個 */
@@ -648,6 +660,11 @@ function renderProducts(list) {
         <p class="product-tag">${escapeHTML(p.tag)}</p>
         <h3 class="product-name">${escapeHTML(p.name)}</h3>
         <p class="product-desc">${escapeHTML(p.desc)}</p>
+        ${p.coupon ? `<p class="product-coupon">
+          <span class="pc-label">${escapeHTML(p.couponLabel || '折扣碼')}</span>
+          <code class="pc-code">${escapeHTML(p.coupon)}</code>
+          ${p.couponNote ? `<span class="pc-note">${escapeHTML(p.couponNote)}</span>` : ''}
+        </p>` : ''}
         <a class="btn btn-gold btn-sm product-btn" href="${escapeHTML(p.url)}" target="_blank" rel="noopener">前往購買</a>
       </div>
     </li>`).join('');
@@ -755,41 +772,47 @@ async function makeShareImage() {
 }
 
 /* 下載：一律留在結果頁，不跳離網頁
-   只有「確定支援直接下載」的瀏覽器才觸發下載；其他情況改用分享面板或長按，
-   避免瀏覽器把圖片開成新頁面 */
-const isAndroid = /Android/i.test(navigator.userAgent);
+   手機先試系統分享面板 → 再試直接下載 → 最後開新分頁讓使用者長按儲存 */
+const isMobile = /Android|iPad|iPhone|iPod|Mobile/i.test(navigator.userAgent) || isIOS;
 const supportsDownloadAttr = 'download' in document.createElement('a');
 
 async function downloadImage() {
   if (!shareBlob) return;
 
-  // IG / FB / LINE / Threads 內建瀏覽器：不支援下載，一律長按
-  if (isInAppBrowser) { toast('請長按上方圖片儲存 📲'); return; }
-
-  // iPhone / iPad：Safari 的下載會開新頁面，改用分享面板「儲存影像」；不支援就長按
-  if (isIOS) {
-    if (canShareFile()) await nativeShare();
-    else toast('請長按上方圖片，選「加入照片」📲');
-    return;
+  // 手機優先用系統分享面板（iPhone 選「儲存影像」、Android 選「下載」），成功就結束
+  if (isMobile && canShareFile()) {
+    const shared = await nativeShare();
+    if (shared) return;
   }
 
-  // 電腦與 Android Chrome：直接下載，頁面不變
-  if (!supportsDownloadAttr) { toast('請長按上方圖片儲存 📲'); return; }
-  const a = document.createElement('a');
-  a.href = shareURL;
-  a.download = '中秋泰語生存力.png';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  toast('圖片已儲存！看看下方的推薦書單 👇');
+  // 一般瀏覽器：直接觸發下載，頁面不變
+  if (supportsDownloadAttr && !isInAppBrowser) {
+    try {
+      const a = document.createElement('a');
+      a.href = shareURL;
+      a.download = '中秋泰語生存力.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast('圖片已儲存！看看下方的推薦書單 👇');
+      return;
+    } catch (e) { /* 失敗就往下一個方式 */ }
+  }
+
+  // 最後手段：把圖片開在新分頁，長按即可存檔，原本的結果頁仍然留著
+  const win = window.open(shareURL, '_blank');
+  toast(win ? '請在新分頁長按圖片儲存 📲' : '請長按上方圖片儲存 📲');
 }
 
 async function nativeShare() {
-  if (!shareBlob) return;
+  if (!shareBlob) return false;
   const file = new File([shareBlob], 'mid-autumn-thai.png', { type: 'image/png' });
   try {
     await navigator.share({ files: [file], title: '中秋泰語生存力測驗', text: `我答對了 ${state.score}/${CONFIG.questions.length} 題！你呢？` });
-  } catch (e) { /* 使用者取消分享 */ }
+    return true;                       // 使用者取消也算完成，不再跳其他視窗
+  } catch (e) {
+    return e && e.name === 'AbortError';
+  }
 }
 
 /* 關閉彈窗後，帶使用者看到購書區 */

@@ -222,3 +222,9 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.75rem,7.5vw,2.
 .product-desc{margin:0 0 10px !important;font-size:.86rem !important;line-height:1.65;color:var(--muted)}
 .product-btn{align-self:flex-start;margin-top:auto}
 @media (max-width:340px){.product{grid-template-columns:1fr}.product-img{max-width:160px}}
+
+/* 商品折扣碼 */
+.product-coupon{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin:0 0 10px !important;padding:8px 10px;border:1.5px dashed var(--moon);border-radius:10px}
+.pc-label{font-size:.75rem;color:var(--muted)}
+.pc-code{font-family:ui-monospace,Menlo,monospace;font-size:1rem;font-weight:700;color:var(--moon);letter-spacing:.06em}
+.pc-note{font-size:.75rem;color:var(--ember)}

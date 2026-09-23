@@ -75,7 +75,7 @@ const CONFIG = {
        找不到圖片或留空時，會自動顯示預留的圖片框 */
   fixedProduct: {
     name: '數位版【泰劇常見詞｜泰文子音母音卡】',
-    url: 'https://thaiskr.com/store/products/AE_0002',
+    url: 'https://tally.so/r/obo7AO',
     image: 'images/AE_0002.jpg',
     desc: '42 張子音卡＋25 張母音卡，每張搭配 3 句泰劇情境例句與母語者錄音。拼音、斷句、語速調整一次到位，不管哪個程度，都能回頭把字母基礎打穩。',
     coupon: 'AUTUMN100',          // 只有這個固定商品有折扣碼，留空則不顯示

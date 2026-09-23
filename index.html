@@ -107,19 +107,19 @@
   <div class="modal" id="modal" hidden>
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <h2 id="modal-title">你的中秋泰語成績單</h2>
-      <p class="modal-hint">手機請長按圖片 ➜ 儲存或分享到 IG 限動</p>
+      <p class="modal-hint" id="modal-hint">長按圖片 ➜ 儲存或分享到 IG 限動</p>
       <div class="modal-img-wrap"><img id="modal-img" alt="測驗結果分享圖" /></div>
       <div class="modal-actions">
-        <button class="btn btn-gold" id="btn-download" type="button">下載圖片</button>
+        <button class="btn btn-gold" id="btn-download" type="button">儲存圖片</button>
         <button class="btn btn-primary" id="btn-native-share" type="button" hidden>分享</button>
       </div>
       <button class="btn btn-text" id="btn-close" type="button">關閉，看推薦書單</button>
+      <p class="diag" id="diag"></p>
     </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

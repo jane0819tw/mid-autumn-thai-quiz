@@ -322,7 +322,8 @@ function sceneSVG(interactive, variant = 'landing') {
   const hs = (key, label) => interactive
     ? `class="hotspot" data-key="${key}" tabindex="0" role="button" aria-label="${label}"`
     : '';
-  const open = (label) => `<svg viewBox="0 0 360 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label}">`;
+  // width / height 一定要寫，iOS Safari 才畫得出這張 SVG
+  const open = (label) => `<svg viewBox="0 0 360 400" width="360" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${label}">`;
 
   if (variant === 'full') {
     const heart = (x, y, sc) => `<path transform="translate(${x} ${y}) scale(${sc})" d="M0 4 C-6 -2 -10 -8 -5 -11 C-2 -13 0 -10 0 -8 C0 -10 2 -13 5 -11 C10 -8 6 -2 0 4 Z" fill="#ff9fb4"/>`;
@@ -696,74 +697,174 @@ function restoreResult() {
   return false;
 }
 
-/* ---------- 分享圖產生 ---------- */
+/* ---------- 分享圖產生 ----------
+   不使用 html2canvas：直接用 canvas 畫，iPhone / Android 都能穩定產圖 */
 let shareBlob = null;
-let shareURL = '';
+let shareDataURL = '';
 let artReady = Promise.resolve();
+let lastError = '';
 
-/* html2canvas 無法穩定繪製 SVG 圖片（手機 Safari 常整張空白），先自己轉成 PNG */
-function svgToPng(svg, width) {
+const SHARE_W = 1080, SHARE_H = 1920;          // IG 限動尺寸
+
+function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
-      const h = Math.round(width * 400 / 360);   // 插圖 viewBox 360×400
-      const c = document.createElement('canvas');
-      c.width = width; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, width, h);
-      try { resolve(c.toDataURL('image/png')); } catch (e) { reject(e); }
-    };
-    img.onerror = reject;
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('圖片載入失敗'));
+    img.src = src;
   });
+}
+
+/* 插圖轉 PNG（網頁上的預覽也用這張） */
+function svgToPng(svg, width) {
+  return loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)).then(img => {
+    const h = Math.round(width * 400 / 360);   // 插圖 viewBox 360×400
+    const c = document.createElement('canvas');
+    c.width = width; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, width, h);
+    return c.toDataURL('image/png');
+  });
+}
+
+const FONT_DISPLAY = '"LXGW WenKai TC","Noto Sans TC","PingFang TC",sans-serif';
+
+/* 置中畫一行由多段組成的文字，例如：我答對了 [5][/5] 題！ */
+function drawSegments(ctx, segs, y) {
+  ctx.textBaseline = 'alphabetic';
+  let total = 0;
+  segs.forEach(s => { ctx.font = s.font; total += ctx.measureText(s.text).width; });
+  let x = (SHARE_W - total) / 2;
+  segs.forEach(s => {
+    ctx.font = s.font; ctx.fillStyle = s.color;
+    ctx.fillText(s.text, x, y);
+    x += ctx.measureText(s.text).width;
+  });
+}
+
+/* 自動換行的置中文字，回傳畫完後的 y */
+function drawWrapped(ctx, text, y, maxW, font, color, lineH) {
+  ctx.font = font; ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  const lines = [];
+  let line = '';
+  for (const ch of text) {
+    if (ctx.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch; }
+    else line += ch;
+  }
+  if (line) lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, SHARE_W / 2, y + i * lineH));
+  ctx.textAlign = 'left';
+  return y + (lines.length - 1) * lineH;
+}
+
+async function buildShareCanvas(tierKey) {
+  const canvas = document.createElement('canvas');
+  canvas.width = SHARE_W; canvas.height = SHARE_H;
+  const ctx = canvas.getContext('2d');
+
+  // 背景
+  const bg = ctx.createLinearGradient(0, 0, 0, SHARE_H);
+  bg.addColorStop(0, '#141a3d');
+  bg.addColorStop(.62, '#2a2f6b');
+  bg.addColorStop(1, '#5a3f6e');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, SHARE_W, SHARE_H);
+
+  // 外框
+  ctx.strokeStyle = '#ffe6a3'; ctx.lineWidth = 10;
+  ctx.strokeRect(5, 5, SHARE_W - 10, SHARE_H - 10);
+
+  // 品牌
+  ctx.textAlign = 'center';
+  ctx.font = `700 42px ${FONT_DISPLAY}`;
+  ctx.fillStyle = '#ffe6a3';
+  ctx.fillText(CONFIG.brandName, SHARE_W / 2, 130);
+  ctx.textAlign = 'left';
+
+  // 插圖
+  try {
+    const art = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(sceneSVG(false, tierKey)));
+    const w = SHARE_W * 1.02;
+    const h = w * 400 / 360;
+    ctx.drawImage(art, (SHARE_W - w) / 2, 180, w, h);
+  } catch (e) { lastError = 'art:' + e.message; }
+
+  // 分數
+  const total = CONFIG.questions.length;
+  drawSegments(ctx, [
+    { text: '我答對了 ', font: `700 84px ${FONT_DISPLAY}`, color: '#fff7e6' },
+    { text: String(state.score), font: `700 116px ${FONT_DISPLAY}`, color: '#ffe6a3' },
+    { text: '/' + total, font: `700 68px ${FONT_DISPLAY}`, color: '#ffe6a3' },
+    { text: ' 題！', font: `700 84px ${FONT_DISPLAY}`, color: '#fff7e6' },
+  ], 1610);
+
+  // 稱號
+  const endY = drawWrapped(ctx, CONFIG.results[tierKey].shareTitle, 1720, 960, `700 54px ${FONT_DISPLAY}`, '#ffd9b8', 70);
+
+  // 頁尾
+  ctx.textAlign = 'center';
+  ctx.font = `400 34px ${FONT_DISPLAY}`;
+  ctx.fillStyle = '#b9bddf';
+  ctx.fillText('中秋泰語生存力測驗', SHARE_W / 2, Math.min(endY + 90, SHARE_H - 60));
+  ctx.textAlign = 'left';
+
+  return canvas;
 }
 
 const isInAppBrowser = /Instagram|FBAN|FBAV|Line\/|Threads/i.test(navigator.userAgent);
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isMobile = isIOS || /Android|Mobile/i.test(navigator.userAgent);
+const supportsDownloadAttr = 'download' in document.createElement('a');
 
 function canShareFile() {
-  if (!shareBlob || !navigator.canShare) return false;
-  return navigator.canShare({ files: [new File([shareBlob], 'mid-autumn-thai.png', { type: 'image/png' })] });
+  if (!shareBlob || !navigator.canShare || !navigator.share) return false;
+  try {
+    return navigator.canShare({ files: [new File([shareBlob], 'mid-autumn-thai.png', { type: 'image/png' })] });
+  } catch (e) { return false; }
 }
 
 async function makeShareImage() {
   const btn = $('#btn-share');
-  const card = $('#share-card');
-  if (typeof html2canvas !== 'function') { toast('圖片工具載入失敗，請重新整理'); return; }
-
   btn.disabled = true;
   const label = btn.textContent;
   btn.textContent = '圖片製作中…';
+  lastError = '';
   try {
-    await artReady;
-    if (document.fonts?.ready) await document.fonts.ready;
-    const img = $('#sc-art');
-    if (img.decode) { try { await img.decode(); } catch (e) {} }
+    if (document.fonts?.ready) {
+      try {
+        await Promise.race([
+          Promise.all([
+            document.fonts.load(`700 84px "LXGW WenKai TC"`),
+            document.fonts.load(`700 54px "LXGW WenKai TC"`),
+            document.fonts.ready,
+          ]),
+          new Promise(r => setTimeout(r, 2500)),   // 字體載太久就先畫，避免卡住
+        ]);
+      } catch (e) {}
+    }
 
-    const rect = card.getBoundingClientRect();
-    const canvas = await html2canvas(card, {
-      scale: 1080 / rect.width,          // 輸出 1080×1920，剛好是 IG 限動尺寸
-      backgroundColor: '#141a3d',
-      useCORS: true,
-      logging: false,
-      // 修正頁面捲動後截圖位移、被切掉的問題
-      scrollX: 0,
-      scrollY: -window.scrollY,
-      windowWidth: document.documentElement.clientWidth,
-      windowHeight: document.documentElement.clientHeight,
-      // 下載的圖改成直角，避免四個角露出底色
-      onclone: doc => { doc.getElementById('share-card').style.borderRadius = '0'; },
+    const tierKey = tierOf(state.score, CONFIG.questions.length);
+    const canvas = await buildShareCanvas(tierKey);
+
+    shareDataURL = canvas.toDataURL('image/png');
+    shareBlob = await new Promise(res => {
+      if (canvas.toBlob) canvas.toBlob(res, 'image/png');
+      else res(dataURLtoBlob(shareDataURL));
     });
+    if (!shareBlob) shareBlob = dataURLtoBlob(shareDataURL);
 
-    shareBlob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-    if (shareURL) URL.revokeObjectURL(shareURL);
-    shareURL = URL.createObjectURL(shareBlob);
-    $('#modal-img').src = shareURL;
+    $('#modal-img').src = shareDataURL;        // data URL：iPhone 長按才存得起來
+    $('#modal-hint').textContent = isIOS
+      ? '長按圖片 ➜ 加入照片，或按下方「儲存圖片」'
+      : '按「儲存圖片」，或長按圖片儲存';
     $('#btn-native-share').hidden = !canShareFile();
+    updateDiag();
 
     $('#modal').hidden = false;
     $('#btn-close').focus();
   } catch (err) {
     console.error(err);
+    lastError = err && err.message ? err.message : String(err);
+    updateDiag();
     toast('圖片製作失敗，可以直接截圖分享喔');
   } finally {
     btn.disabled = false;
@@ -771,37 +872,40 @@ async function makeShareImage() {
   }
 }
 
-/* 下載：一律留在結果頁，不跳離網頁
-   手機先試系統分享面板 → 再試直接下載 → 最後開新分頁讓使用者長按儲存 */
-const isMobile = /Android|iPad|iPhone|iPod|Mobile/i.test(navigator.userAgent) || isIOS;
-const supportsDownloadAttr = 'download' in document.createElement('a');
+function dataURLtoBlob(dataURL) {
+  const [head, body] = dataURL.split(',');
+  const bin = atob(body);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: head.match(/:(.*?);/)[1] });
+}
 
+/* 儲存圖片：分享面板 ➜ 直接下載 ➜ 長按提示，全程不離開結果頁 */
 async function downloadImage() {
-  if (!shareBlob) return;
+  if (!shareBlob && !shareDataURL) { toast('圖片還沒做好，請再按一次'); return; }
 
-  // 手機優先用系統分享面板（iPhone 選「儲存影像」、Android 選「下載」），成功就結束
+  // 手機優先用系統分享面板（iPhone：儲存影像 / Android：下載）
   if (isMobile && canShareFile()) {
-    const shared = await nativeShare();
-    if (shared) return;
+    const ok = await nativeShare();
+    if (ok) return;
   }
 
-  // 一般瀏覽器：直接觸發下載，頁面不變
-  if (supportsDownloadAttr && !isInAppBrowser) {
+  // 電腦與支援的瀏覽器：直接下載，頁面不變
+  if (supportsDownloadAttr && !isIOS && !isInAppBrowser) {
     try {
       const a = document.createElement('a');
-      a.href = shareURL;
+      a.href = shareDataURL;
       a.download = '中秋泰語生存力.png';
       document.body.appendChild(a);
       a.click();
       a.remove();
       toast('圖片已儲存！看看下方的推薦書單 👇');
       return;
-    } catch (e) { /* 失敗就往下一個方式 */ }
+    } catch (e) { lastError = 'download:' + e.message; }
   }
 
-  // 最後手段：把圖片開在新分頁，長按即可存檔，原本的結果頁仍然留著
-  const win = window.open(shareURL, '_blank');
-  toast(win ? '請在新分頁長按圖片儲存 📲' : '請長按上方圖片儲存 📲');
+  updateDiag();
+  toast(isIOS ? '請長按上方圖片 ➜ 加入照片 📲' : '請長按上方圖片儲存 📲');
 }
 
 async function nativeShare() {
@@ -809,10 +913,20 @@ async function nativeShare() {
   const file = new File([shareBlob], 'mid-autumn-thai.png', { type: 'image/png' });
   try {
     await navigator.share({ files: [file], title: '中秋泰語生存力測驗', text: `我答對了 ${state.score}/${CONFIG.questions.length} 題！你呢？` });
-    return true;                       // 使用者取消也算完成，不再跳其他視窗
+    return true;
   } catch (e) {
-    return e && e.name === 'AbortError';
+    lastError = 'share:' + (e && e.name ? e.name : e);
+    updateDiag();
+    return !!(e && e.name === 'AbortError');   // 使用者自己取消，不再跳其他視窗
   }
+}
+
+/* 小字診斷資訊：手機存圖失敗時，可以把這行內容回報 */
+function updateDiag() {
+  const el = $('#diag');
+  if (!el) return;
+  const kb = shareBlob ? Math.round(shareBlob.size / 1024) : 0;
+  el.textContent = `img ${kb}KB · share ${navigator.share ? 'Y' : 'N'} · files ${canShareFile() ? 'Y' : 'N'} · dl ${supportsDownloadAttr ? 'Y' : 'N'}${lastError ? ' · ' + lastError : ''}`;
 }
 
 /* 關閉彈窗後，帶使用者看到購書區 */
